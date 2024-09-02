@@ -32,6 +32,8 @@ const props = defineProps({
   isLastQuestion: Boolean,
 });
 
+console.log(props)
+
 const emit = defineEmits(["submit-answer"]);
 
 const quizStore = useQuizStore();

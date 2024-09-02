@@ -2,7 +2,7 @@
   <div class="mt-5 flex flex-col items-center">
     <div class="flex justify-center space-x-2">
       <span
-        v-for="(question, index) in questions"
+        v-for="(, index) in questions"
         :key="index"
         :class="[
           'w-5 h-5 rounded-full border-2 cursor-pointer',
