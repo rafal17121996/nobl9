@@ -7,8 +7,8 @@
     <ul class="space-y-6">
       <li v-for="(question, index) in quizStore.questions" :key="index" class="bg-gray-100 p-6 rounded-lg shadow">
         <p v-html="question.question" class="font-bold mb-4"></p>
-        <p class="mb-2">Your Answer: <span :class="{'text-green-600 font-bold': isCorrect(index), 'text-red-600 font-bold': !isCorrect(index)}">{{ quizStore.answers[index] }}</span></p>
-        <p v-if="!isCorrect(index)" class="italic text-gray-500">Correct Answer: {{ question.correct_answer }}</p>
+        <p class="mb-2">Your Answer: <span :class="{'text-green-600 font-bold': isCorrect(index), 'text-red-600 font-bold': !isCorrect(index)}"> <p v-html= 'quizStore.answers[index]'></p></span></p>
+        <p v-if="!isCorrect(index)" class="italic text-gray-500">Correct Answer: <p v-html = 'question.correct_answer'></p></p>
       </li>
     </ul>
 
