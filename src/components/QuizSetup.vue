@@ -1,49 +1,144 @@
 <template>
   <div class="max-w-md mx-auto text-center p-6 bg-white shadow-md rounded-lg">
     <h2 class="text-2xl font-semibold mb-6">Set up your quiz</h2>
-    
-    <div class="mb-4">
-      <label for="difficulty" class="block text-left font-medium text-gray-700 mb-2">Difficulty:</label>
-      <select id="difficulty" v-model="selectedDifficulty" class="w-full p-2 border border-gray-300 rounded">
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
+
+    <div v-if="isLoading" class="text-center">
+      <svg
+        class="animate-spin h-8 w-8 text-gray-500 mx-auto"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8h8a8 8 0 01-16 0z"
+        ></path>
+      </svg>
+      <p>Loading...</p>
     </div>
 
-    <div class="mb-6">
-      <label for="amount" class="block text-left font-medium text-gray-700 mb-2">
-        Number of questions: <span class="font-bold">{{ selectedAmount }}</span>
-      </label>
-      <input
-        type="range"
-        id="amount"
-        v-model="selectedAmount"
-        min="5"
-        max="20"
-        class="w-full"
-      />
-    </div>
+    <div v-else>
+      <div class="mb-4">
+        <label
+          for="category"
+          class="block text-left font-medium text-gray-700 mb-2"
+          >Category:</label
+        >
+        <select
+          id="category"
+          v-model="selectedCategory"
+          class="w-full p-2 border border-gray-300 rounded"
+        >
+          <option
+            v-for="category in categories"
+            :key="category.id"
+            :value="category.id"
+          >
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
 
-    <button @click="startQuiz" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300">
-      Start Quiz
-    </button>
+      <div class="mb-4">
+        <label
+          for="difficulty"
+          class="block text-left font-medium text-gray-700 mb-2"
+          >Difficulty:</label
+        >
+        <select
+          id="difficulty"
+          v-model="selectedDifficulty"
+          class="w-full p-2 border border-gray-300 rounded"
+        >
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+
+      <div class="mb-6">
+        <label
+          for="amount"
+          class="block text-left font-medium text-gray-700 mb-2"
+        >
+          Number of questions:
+          <span class="font-bold">{{ selectedAmount }}</span>
+        </label>
+        <input
+          type="range"
+          id="amount"
+          v-model="selectedAmount"
+          min="5"
+          max="20"
+          class="w-full"
+        />
+      </div>
+
+      <button
+        @click="startQuiz"
+        class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300"
+      >
+        Start Quiz
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useQuizStore } from '../store/quiz';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useQuizStore } from "../store/quiz";
+import axios from "axios";
 
 const router = useRouter();
 const quizStore = useQuizStore();
 
-const selectedDifficulty = ref<string>('easy'); 
-const selectedAmount = ref<number>(10); 
+const categories = ref<{ id: number; name: string }[]>([]);
+const selectedCategory = ref<number | null>(null);
+const selectedDifficulty = ref<string>("easy");
+const selectedAmount = ref<number>(10);
+const isLoading = ref<boolean>(false); 
 
-const startQuiz = () => {
-  quizStore.fetchQuestions(selectedAmount.value, selectedDifficulty.value);
-  router.push('/quiz');
+const fetchCategories = async () => {
+  isLoading.value = true; 
+  try {
+    const response = await axios.get("https://opentdb.com/api_category.php");
+    categories.value = response.data.trivia_categories;
+
+
+    if (categories.value.length > 0) {
+      selectedCategory.value = categories.value[0].id;
+    }
+  } catch (error) {
+    console.error("Failed to fetch categories", error);
+  } finally {
+    isLoading.value = false; 
+  }
 };
+
+const startQuiz = async () => {
+  isLoading.value = true; 
+  quizStore.resetQuiz();
+  if (!selectedCategory.value) return;
+  await quizStore.fetchQuestions(
+    selectedAmount.value,
+    selectedDifficulty.value,
+    selectedCategory.value
+  );
+  isLoading.value = false; 
+  router.push("/quiz");
+};
+
+onMounted(() => {
+  fetchCategories();
+});
 </script>

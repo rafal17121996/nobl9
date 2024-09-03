@@ -13,7 +13,6 @@
     </div>
 
     <button
-      v-if="allAnswersSelected"
       @click="finishQuiz"
       class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
     >
@@ -33,9 +32,6 @@ const router = useRouter();
 const questions = computed(() => quizStore.questions);
 const answers = computed(() => quizStore.answers);
 
-const allAnswersSelected = computed(() => {
-  return questions.value.length === Object.keys(answers.value).length;
-});
 
 const goToQuestion = (index: number) => {
   quizStore.currentQuestionIndex = index;

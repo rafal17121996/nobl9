@@ -1,12 +1,6 @@
 <template>
   <div class="flex justify-center space-x-4 mt-4">
     <button
-      @click="submitAnswer"
-      class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-    >
-      Submit
-    </button>
-    <button
       @click="goToPreviousQuestion"
       :disabled="isFirstQuestion"
       class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed"
@@ -38,9 +32,6 @@ const emit = defineEmits(["submit-answer"]);
 
 const quizStore = useQuizStore();
 
-const submitAnswer = () => {
-  emit("submit-answer");
-};
 const goToPreviousQuestion = () => {
   quizStore.goToPreviousQuestion();
 };

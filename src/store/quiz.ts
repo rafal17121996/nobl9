@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
+import { useLocalStorage } from "./session";
 
 interface QuizState {
   questions: any[];
@@ -16,11 +17,13 @@ export const useQuizStore = defineStore("quiz", {
     isFinished: false,
   }),
   actions: {
-    async fetchQuestions(amount: number = 10, difficulty: string = "easy") {
+    async fetchQuestions(amount: number = 10, difficulty: string = "easy", selectedCategory: number = 1) {
       const router = useRouter();
+      const sessionStore = useLocalStorage(); 
+      await sessionStore.fetchToken();
       try {
         const response = await fetch(
-          `https://opentdb.com/api.php?amount=${amount}&difficulty=${difficulty}`
+          `https://opentdb.com/api.php?amount=${amount}&category=${selectedCategory}&difficulty=${difficulty}&token=${sessionStore.token}`
         );
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
