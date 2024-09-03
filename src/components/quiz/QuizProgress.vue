@@ -5,8 +5,11 @@
         v-for="(, index) in questions"
         :key="index"
         :class="[
-          'w-5 h-5 rounded-full border-2 cursor-pointer',
-          answers[index] ? 'bg-green-500 border-green-500' : 'border-green-500 bg-transparent'
+          'w-5 h-5 rounded-full border-2 cursor-pointer transform transition-transform duration-300',
+          answers[index]
+            ? 'bg-green-500 border-green-500'
+            : 'border-green-500 bg-transparent',
+          quizStore.currentQuestionIndex === index ? 'scale-125' : '',
         ]"
         @click="goToQuestion(index)"
       ></span>
@@ -22,9 +25,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useQuizStore } from '../../store/quiz';
-import { useRouter } from 'vue-router';
+import { computed } from "vue";
+import { useQuizStore } from "../../store/quiz";
+import { useRouter } from "vue-router";
 
 const quizStore = useQuizStore();
 const router = useRouter();
@@ -32,13 +35,12 @@ const router = useRouter();
 const questions = computed(() => quizStore.questions);
 const answers = computed(() => quizStore.answers);
 
-
 const goToQuestion = (index: number) => {
   quizStore.currentQuestionIndex = index;
 };
 
 const finishQuiz = () => {
   quizStore.finishQuiz();
-  router.push('/summary');
+  router.push("/summary");
 };
 </script>

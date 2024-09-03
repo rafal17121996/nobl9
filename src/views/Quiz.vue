@@ -1,47 +1,47 @@
 <template>
   <div
     v-if="quizStore.currentQuestion"
-    class="flex-grow flex flex-col items-center justify-center bg-gray-100 h-[600px]"
+    class="flex-grow flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 p-4 sm:p-6"
   >
     <div
-      class="max-w-3xl w-full mx-auto text-center p-8 bg-white shadow-lg rounded-lg"
+      class="max-w-3xl w-full mx-auto text-center p-6 sm:p-8 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:text-gray-200"
     >
-      <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6 border-b pb-2 sm:pb-4 dark:text-gray-200">
         Question {{ quizStore.currentQuestionIndex + 1 }} /
         {{ quizStore.questions.length }}
       </h2>
       <p
         v-html="quizStore.currentQuestion.question"
-        class="text-xl text-gray-700 mb-8"
+        class="text-lg sm:text-xl text-gray-700 mb-6 sm:mb-8 dark:text-gray-200"
       ></p>
 
-      <div v-for="(answer, index) in allAnswers" :key="index" class="mb-4">
+      <div v-for="(answer, index) in allAnswers" :key="index" class="mb-3 sm:mb-4">
         <input
           type="radio"
           :value="answer"
           :checked="selectedAnswer === answer"
           @change="handleSubmitAnswer(answer)"
-          class="mr-3 cursor-pointer"
+          class="mr-2 sm:mr-3 cursor-pointer"
         />
         <label
           @click="handleSubmitAnswer(answer)"
           v-html="answer"
-          class="text-lg text-gray-600 cursor-pointer"
+          class="text-base sm:text-lg text-gray-600 cursor-pointer dark:text-gray-200"
         ></label>
       </div>
 
       <QuizNavigation
         :isFirstQuestion="isFirstQuestion"
         :isLastQuestion="isLastQuestion"
-        class="mt-8"
+        class="mt-6 sm:mt-8"
       />
 
-      <QuizProgress class="mt-8" />
+      <QuizProgress class="mt-6 sm:mt-8" />
     </div>
   </div>
 
   <div v-else class="flex justify-center items-center h-full">
-    <p class="text-lg text-gray-500">
+    <p class="text-lg text-gray-500 dark:text-gray-300">
       No questions available. Please try again later.
     </p>
   </div>
@@ -72,6 +72,7 @@ const allAnswers = computed(() => {
 });
 
 onMounted(() => {
+  updateQuestionFlags();
   if (!quizStore.questions.length) {
     console.log("Error");
     router.push("/");

@@ -1,7 +1,9 @@
 <template>
-  <div class="flex-grow flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800">
-    <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-8">Welcome to the Trivia Quiz</h1>
-    <QuizSetup />
+  <div class="flex-grow flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 p-4 sm:p-6">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-green-500 mb-6 sm:mb-8 text-center">
+      Welcome to the Trivia Quiz
+    </h1>
+    <QuizSetup class="w-full max-w-xs sm:max-w-md" />
   </div>
 </template>
 

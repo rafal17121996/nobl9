@@ -1,5 +1,5 @@
 <template>
-<nav class="p-4 fixed top-0 left-0 w-full shadow-md z-50 bg-green-500 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+<nav class="p-4 fixed top-0 left-0 w-full shadow-md z-50 bg-green-500 text-gray-900 dark:bg-gray-900 dark:text-green-500">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <router-link to="/" class="flex items-center">
         <span class="text-2xl font-bold">Quiz App</span>

@@ -1,10 +1,10 @@
 <template>
-  <div class="max-w-md mx-auto text-center p-6 bg-white shadow-md rounded-lg">
-    <h2 class="text-2xl font-semibold mb-6">Set up your quiz</h2>
+  <div class="max-w-md mx-auto text-center p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg">
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Set up your quiz</h2>
 
     <div v-if="isLoading" class="text-center">
       <svg
-        class="animate-spin h-8 w-8 text-gray-500 mx-auto"
+        class="animate-spin h-8 w-8 text-gray-500 dark:text-gray-400 mx-auto"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -23,20 +23,20 @@
           d="M4 12a8 8 0 018-8v8h8a8 8 0 01-16 0z"
         ></path>
       </svg>
-      <p>Loading...</p>
+      <p class="text-gray-700 dark:text-gray-300">Loading...</p>
     </div>
 
     <div v-else>
       <div class="mb-4">
         <label
           for="category"
-          class="block text-left font-medium text-gray-700 mb-2"
+          class="block text-left font-medium text-gray-700 dark:text-gray-300 mb-2"
           >Category:</label
         >
         <select
           id="category"
           v-model="selectedCategory"
-          class="w-full p-2 border border-gray-300 rounded"
+          class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
         >
           <option
             v-for="category in categories"
@@ -51,13 +51,13 @@
       <div class="mb-4">
         <label
           for="difficulty"
-          class="block text-left font-medium text-gray-700 mb-2"
+          class="block text-left font-medium text-gray-700 dark:text-gray-300 mb-2"
           >Difficulty:</label
         >
         <select
           id="difficulty"
           v-model="selectedDifficulty"
-          class="w-full p-2 border border-gray-300 rounded"
+          class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
         >
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
@@ -68,7 +68,7 @@
       <div class="mb-6">
         <label
           for="amount"
-          class="block text-left font-medium text-gray-700 mb-2"
+          class="block text-left font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Number of questions:
           <span class="font-bold">{{ selectedAmount }}</span>
@@ -113,7 +113,6 @@ const fetchCategories = async () => {
   try {
     const response = await axios.get("https://opentdb.com/api_category.php");
     categories.value = response.data.trivia_categories;
-
 
     if (categories.value.length > 0) {
       selectedCategory.value = categories.value[0].id;
