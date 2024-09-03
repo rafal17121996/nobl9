@@ -9,27 +9,29 @@ export const useLocalStorage = defineStore("session", {
 
   actions: {
     async fetchToken() {
-      if (!this.token || this.isTokenExpired()) {
-        if (this.isTokenExpired()) {
-          await this.resetToken();
-        } else {
-          try {
-            const response = await axios.get(
-              "https://opentdb.com/api_token.php?command=request"
-            );
-            this.token = response.data.token;
-            if (this.token) {
-              const timestamp = new Date().getTime().toString();
-              localStorage.setItem("quizToken", this.token);
-              localStorage.setItem("quizTokenTimestamp", timestamp);
-              this.tokenTimestamp = timestamp;
-            }
-          } catch (error) {
-            console.error("Failed to fetch session token", error);
+      if (!this.token) {
+        console.log("Fetch token");
+        try {
+          const response = await axios.get(
+            "https://opentdb.com/api_token.php?command=request"
+          );
+          this.token = response.data.token;
+          if (this.token) {
+            const timestamp = new Date().getTime().toString();
+            localStorage.setItem("quizToken", this.token);
+            localStorage.setItem("quizTokenTimestamp", timestamp);
+            this.tokenTimestamp = timestamp;
           }
+        } catch (error) {
+          console.error("Failed to fetch session token", error);
         }
       } else {
-        console.log("Using existing token");
+        if (this.isTokenExpired()) {
+          console.log("Reset existing token");
+          this.resetToken();
+        } else {
+          console.log("Using existing token");
+        }
       }
     },
 
