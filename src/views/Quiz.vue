@@ -81,7 +81,6 @@ const allAnswers = computed(() => {
 onMounted(() => {
   updateQuestionFlags();
   if (!quizStore.questions.length) {
-    console.log("Error");
     router.push("/");
   }
 });

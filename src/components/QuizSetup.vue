@@ -1,6 +1,10 @@
 <template>
-  <div class="max-w-md mx-auto text-center p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Set up your quiz</h2>
+  <div
+    class="max-w-md mx-auto text-center p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg"
+  >
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">
+      Set up your quiz
+    </h2>
 
     <div v-if="isLoading" class="text-center">
       <svg
@@ -106,10 +110,10 @@ const categories = ref<{ id: number; name: string }[]>([]);
 const selectedCategory = ref<number | null>(null);
 const selectedDifficulty = ref<string>("easy");
 const selectedAmount = ref<number>(10);
-const isLoading = ref<boolean>(false); 
+const isLoading = ref<boolean>(false);
 
 const fetchCategories = async () => {
-  isLoading.value = true; 
+  isLoading.value = true;
   try {
     const response = await axios.get("https://opentdb.com/api_category.php");
     categories.value = response.data.trivia_categories;
@@ -120,21 +124,34 @@ const fetchCategories = async () => {
   } catch (error) {
     console.error("Failed to fetch categories", error);
   } finally {
-    isLoading.value = false; 
+    isLoading.value = false;
   }
 };
 
 const startQuiz = async () => {
-  isLoading.value = true; 
+  isLoading.value = true;
   quizStore.resetQuiz();
-  if (!selectedCategory.value) return;
-  await quizStore.fetchQuestions(
-    selectedAmount.value,
-    selectedDifficulty.value,
-    selectedCategory.value
-  );
-  isLoading.value = false; 
-  router.push("/quiz");
+
+  if (!selectedCategory.value) {
+    isLoading.value = false;
+    return;
+  }
+
+  try {
+    await quizStore.fetchQuestions(
+      router,
+      selectedAmount.value,
+      selectedDifficulty.value,
+      selectedCategory.value
+    );
+    router.push("/quiz");
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    console.error("Failed to start the quiz:", errorMessage);
+    router.push({ name: "Error", query: { message: errorMessage } });
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 onMounted(() => {

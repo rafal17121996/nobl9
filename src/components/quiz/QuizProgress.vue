@@ -1,11 +1,13 @@
 <template>
   <div class="mt-5 flex flex-col items-center">
-    <div class="flex justify-center space-x-2">
+    <div
+      class="flex justify-center items-center flex-wrap max-w-full space-x-2 gap-y-4"
+    >
       <span
-        v-for="(, index) in questions"
+        v-for="(question, index) in questions"
         :key="index"
         :class="[
-          'w-5 h-5 rounded-full border-2 cursor-pointer transform transition-transform duration-300',
+          'sm:w-5 sm:h-5 w-3 h-3 rounded-full border-2 cursor-pointer transform transition-transform duration-300',
           answers[index]
             ? 'bg-green-500 border-green-500'
             : 'border-green-500 bg-transparent',
