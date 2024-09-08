@@ -28,9 +28,7 @@ export const useQuizStore = defineStore("quiz", {
       selectedCategory: number = 1,
       retries: number = 0
     ) {
-      console.log('2')
       const token = await getToken();
-      console.log('token')
       // If retries exceed 3, stop retrying and throw an error
       if (retries >= 3) {
         throw new Error("Maximum retries reached. Please try again later.");
@@ -85,8 +83,8 @@ export const useQuizStore = defineStore("quiz", {
             difficulty,
             selectedCategory,
             retries,
-            false
-          );
+            true
+          );  
           break;
         case 4:
           await this.handleTokenError(
@@ -111,6 +109,7 @@ export const useQuizStore = defineStore("quiz", {
       reset: boolean
     ) {
       if (reset) {
+        console.log('reset')
         await resetToken();
       }
       // Wait for 5 seconds before retrying (handle too many req)
