@@ -1,12 +1,12 @@
 <template>
-  <div class="mt-5 flex flex-col items-center">
+  <div v-if="questions && questions.length" class="mt-5 flex flex-col items-center">
     <div
       class="flex justify-center items-center flex-wrap max-w-full space-x-2 gap-y-4"
     >
       <span
         v-for="(question, index) in questions"
         :key="index"
-        :class="[
+        :class="[ 
           'sm:w-5 sm:h-5 w-3 h-3 rounded-full border-2 cursor-pointer transform transition-transform duration-300',
           answers[index]
             ? 'bg-green-500 border-green-500'
@@ -24,6 +24,7 @@
       Finish Quiz
     </button>
   </div>
+  <div v-else class="text-gray-500">Loading questions...</div>
 </template>
 
 <script setup lang="ts">
@@ -42,7 +43,11 @@ const goToQuestion = (index: number) => {
 };
 
 const finishQuiz = () => {
-  quizStore.finishQuiz();
-  router.push("/summary");
+  if (quizStore.questions && quizStore.questions.length > 0) {
+    quizStore.finishQuiz();
+    router.push("/summary");
+  } else {
+    console.error("Questions data is not available.");
+  }
 };
 </script>

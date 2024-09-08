@@ -6,34 +6,16 @@
       Quiz Summary
     </h2>
 
-    <div class="mt-6 mb-4">
-      <label
-        for="quizResultsDropdown"
-        class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4"
-        >Select a quiz result:</label
-      >
-      <select
-        id="quizResultsDropdown"
-        v-model="selectedResultIndex"
-        @change="updateSelectedResult"
-        class="ml-4 p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition"
-      >
-        <option
-          v-for="(result, index) in quizResults"
-          :key="index"
-          :value="index"
-        >
-          {{ new Date(result.date).toLocaleString() }}
-        </option>
-      </select>
-    </div>
-
+    <!-- Quiz History Dropdown -->
+    <QuizResultsDropdown
+      :quizResults="quizResults"
+      :selectedResultIndex="selectedResultIndex"
+      @updateResult="updateSelectedResult"
+    />
     <p class="text-xl text-gray-700 dark:text-gray-300 mb-4">
       Your quiz time:
       <span class="font-bold">{{
-        selectedResult?.elapsedTime
-          ? formatTime(selectedResult.elapsedTime)
-          : quizStore.formattedElapsedTime
+        selectedResult?.elapsedTime && formatTime(selectedResult.elapsedTime)
       }}</span>
     </p>
 
@@ -45,6 +27,7 @@
 
     <div class="mt-6">
       <QuestionsAndAnswers
+        v-if="selectedResult?.questions && selectedResult.questions.length"
         :questions="selectedResult?.questions"
         :answers="Object.values(selectedResult?.answers || {})"
       />
@@ -61,12 +44,11 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { useQuizStore } from "../store/quiz";
 import { useRouter } from "vue-router";
 import Chart from "../components/summary/Chart.vue";
 import QuestionsAndAnswers from "../components/summary/QuestionsAndAnswers.vue";
+import QuizResultsDropdown from "../components/summary/QuizResultsDropdown.vue";
 
-const quizStore = useQuizStore();
 const router = useRouter();
 const quizResults = ref<any[]>([]);
 const selectedResultIndex = ref(0);
@@ -81,14 +63,15 @@ onMounted(() => {
   if (storedResults) {
     quizResults.value = JSON.parse(storedResults);
     selectedResultIndex.value = quizResults.value.length - 1;
-    updateSelectedResult();
+    updateSelectedResult(selectedResultIndex.value);
   } else {
     const errorMessage = "No history, solve quiz to see results";
     router.push({ name: "Error", query: { message: errorMessage } });
   }
 });
 
-const updateSelectedResult = () => {
+const updateSelectedResult = (index: number) => {
+  selectedResultIndex.value = index;
   selectedResult.value = quizResults.value[selectedResultIndex.value];
 
   correctAnswers.value = selectedResult.value.questions.filter(

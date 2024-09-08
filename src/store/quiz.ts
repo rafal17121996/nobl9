@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { useLocalStorage } from "./session";
 import { makeApiRequest } from "../services/apiService";
 import { getToken, resetToken } from "../services/sessionService";
 
@@ -22,29 +21,43 @@ export const useQuizStore = defineStore("quiz", {
     timerInterval: null,
   }),
   actions: {
+    // Fetches the quiz questions from the API
     async fetchQuestions(
       amount: number = 10,
       difficulty: string = "easy",
       selectedCategory: number = 1,
       retries: number = 0
     ) {
-      const token = await getToken()
-
+      console.log('2')
+      const token = await getToken();
+      console.log('token')
+      // If retries exceed 3, stop retrying and throw an error
       if (retries >= 3) {
         throw new Error("Maximum retries reached. Please try again later.");
       }
 
       try {
-        if (!token) return
-        const response = await makeApiRequest(amount, difficulty, selectedCategory, token);
-        await this.handleApiResponse(response, amount, difficulty, selectedCategory, retries);
+        if (!token) return;
+        const response = await makeApiRequest(
+          amount,
+          difficulty,
+          selectedCategory,
+          token
+        );
+        await this.handleApiResponse(
+          response,
+          amount,
+          difficulty,
+          selectedCategory,
+          retries
+        );
       } catch (error) {
         console.error("Error in fetchQuestions:", error);
         throw error;
       }
     },
 
-
+    // Handles the response from the API
     async handleApiResponse(
       response: Response,
       amount: number,
@@ -63,18 +76,33 @@ export const useQuizStore = defineStore("quiz", {
             "No Results: Could not return results. Not enough questions for your query."
           );
         case 2:
-          throw new Error("Invalid Parameter: The parameters provided are invalid.");
+          throw new Error(
+            "Invalid Parameter: The parameters provided are invalid."
+          );
         case 3:
-          await this.handleTokenError(amount, difficulty, selectedCategory, retries, false);
+          await this.handleTokenError(
+            amount,
+            difficulty,
+            selectedCategory,
+            retries,
+            false
+          );
           break;
         case 4:
-          await this.handleTokenError(amount, difficulty, selectedCategory, retries, true);
+          await this.handleTokenError(
+            amount,
+            difficulty,
+            selectedCategory,
+            retries,
+            true
+          );
           break;
         default:
           throw new Error("Unknown response code.");
       }
     },
 
+    // Handles token-related errors and retries the request
     async handleTokenError(
       amount: number,
       difficulty: string,
@@ -83,11 +111,16 @@ export const useQuizStore = defineStore("quiz", {
       reset: boolean
     ) {
       if (reset) {
-        await resetToken()
+        await resetToken();
       }
-
+      // Wait for 5 seconds before retrying (handle too many req)
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      await this.fetchQuestions(amount, difficulty, selectedCategory, retries + 1);
+      await this.fetchQuestions(
+        amount,
+        difficulty,
+        selectedCategory,
+        retries + 1
+      );
     },
 
     answerQuestion(answer: string) {
@@ -108,8 +141,9 @@ export const useQuizStore = defineStore("quiz", {
       this.stopTimer();
       this.saveQuizResult();
     },
+    // Saves the quiz result in local storage
     saveQuizResult() {
-      const correctAnswers = Object.keys(this.answers).filter(index => {
+      const correctAnswers = Object.keys(this.answers).filter((index) => {
         const question = this.questions[Number(index)];
         return question.correct_answer === this.answers[Number(index)];
       }).length;
@@ -120,16 +154,19 @@ export const useQuizStore = defineStore("quiz", {
         totalQuestions: this.questions.length,
         elapsedTime: this.elapsedTime,
         questions: this.questions,
-        answers: this.answers
+        answers: this.answers,
       };
 
-      const storedResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
-      
+      const storedResults = JSON.parse(
+        localStorage.getItem("quizResults") || "[]"
+      );
+
       storedResults.push(quizResult);
 
-      localStorage.setItem('quizResults', JSON.stringify(storedResults));
+      localStorage.setItem("quizResults", JSON.stringify(storedResults));
     },
 
+    // Resets the quiz state to start a new quiz
     resetQuiz() {
       this.currentQuestionIndex = 0;
       this.answers = {};
@@ -155,6 +192,7 @@ export const useQuizStore = defineStore("quiz", {
     progress: (state) =>
       (state.currentQuestionIndex + 1) / state.questions.length,
     getAnswerForQuestion: (state) => (index: number) => state.answers[index],
+    // Format the elapsed time in mm:ss format
     formattedElapsedTime: (state) => {
       const minutes = Math.floor(state.elapsedTime / 60);
       const seconds = state.elapsedTime % 60;
