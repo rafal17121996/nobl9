@@ -105,7 +105,6 @@ const handleSubmitAnswer = (answer: string) => {
 };
 
 onBeforeRouteLeave((to, from, next) => {
-  console.log(from);
   if (to.path === "/error" || quizStore.isFinished) {
     next();
   } else {
