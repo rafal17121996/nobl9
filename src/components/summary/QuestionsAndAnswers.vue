@@ -4,7 +4,7 @@
       <ul class="space-y-6">
         <li v-for="(question, index) in questions" :key="index" class="bg-gray-100 dark:bg-gray-700 p-6 max-w-4xl mx-auto rounded-lg shadow">
           <p v-html="question.question" class="font-bold mb-4 dark:text-gray-200"></p>
-          <p class="mb-2">
+          <p class="mb-2 text-gray-700 dark:text-gray-300">
             Your Answer: 
             <span :class="{'text-green-600 dark:text-green-400 font-bold': isCorrect(index), 'text-red-600 dark:text-red-400 font-bold': !isCorrect(index)}">
               <p v-html="answers[index] || 'No answer provided'"></p>

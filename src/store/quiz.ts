@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { useLocalStorage } from "./session";
+import { makeApiRequest } from "../services/apiService";
+import { getToken, resetToken } from "../services/sessionService";
 
 interface QuizState {
   questions: any[];
@@ -21,68 +23,30 @@ export const useQuizStore = defineStore("quiz", {
   }),
   actions: {
     async fetchQuestions(
-      router: any,
       amount: number = 10,
       difficulty: string = "easy",
       selectedCategory: number = 1,
       retries: number = 0
     ) {
-      const sessionStore = useLocalStorage();
-      await sessionStore.fetchToken();
+      const token = await getToken()
 
       if (retries >= 3) {
         throw new Error("Maximum retries reached. Please try again later.");
       }
 
       try {
-        if (!sessionStore.token) return
-        const response = await this.makeApiRequest(amount, difficulty, selectedCategory, sessionStore.token);
-        await this.handleApiResponse(response, router, amount, difficulty, selectedCategory, retries);
+        if (!token) return
+        const response = await makeApiRequest(amount, difficulty, selectedCategory, token);
+        await this.handleApiResponse(response, amount, difficulty, selectedCategory, retries);
       } catch (error) {
         console.error("Error in fetchQuestions:", error);
         throw error;
       }
     },
-    async makeApiRequest(amount: number, difficulty: string, selectedCategory: number, token: string) {
-      const response = await fetch(
-        `https://opentdb.com/api.php?amount=${amount}&category=${selectedCategory}&difficulty=${difficulty}&token=${token}`
-      );
 
-      if (!response.ok) {
-        this.handleHttpError(response);
-      }
-
-      return response;
-    },
-
-    handleHttpError(response: Response) {
-      switch (response.status) {
-        case 400:
-          throw new Error("Bad Request: The request was invalid.");
-        case 401:
-          throw new Error("Unauthorized: Access token is missing or invalid.");
-        case 403:
-          throw new Error("Forbidden: You do not have permission to access this resource.");
-        case 404:
-          throw new Error("Not Found: The requested resource could not be found.");
-        case 429:
-          throw new Error("Too Many Requests: Please wait a few moments before trying again.");
-        case 500:
-          throw new Error("Internal Server Error: Something went wrong on the server.");
-        case 502:
-          throw new Error("Bad Gateway: Invalid response from the upstream server.");
-        case 503:
-          throw new Error("Service Unavailable: The server is currently unable to handle the request.");
-        case 504:
-          throw new Error("Gateway Timeout: The server took too long to respond.");
-        default:
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-    },
 
     async handleApiResponse(
       response: Response,
-      router: any,
       amount: number,
       difficulty: string,
       selectedCategory: number,
@@ -101,10 +65,10 @@ export const useQuizStore = defineStore("quiz", {
         case 2:
           throw new Error("Invalid Parameter: The parameters provided are invalid.");
         case 3:
-          await this.handleTokenError(router, amount, difficulty, selectedCategory, retries, false);
+          await this.handleTokenError(amount, difficulty, selectedCategory, retries, false);
           break;
         case 4:
-          await this.handleTokenError(router, amount, difficulty, selectedCategory, retries, true);
+          await this.handleTokenError(amount, difficulty, selectedCategory, retries, true);
           break;
         default:
           throw new Error("Unknown response code.");
@@ -112,21 +76,18 @@ export const useQuizStore = defineStore("quiz", {
     },
 
     async handleTokenError(
-      router: any,
       amount: number,
       difficulty: string,
       selectedCategory: number,
       retries: number,
-      resetToken: boolean
+      reset: boolean
     ) {
-      const sessionStore = useLocalStorage();
-
-      if (resetToken) {
-        await sessionStore.resetToken();
+      if (reset) {
+        await resetToken()
       }
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      await this.fetchQuestions(router, amount, difficulty, selectedCategory, retries + 1);
+      await this.fetchQuestions(amount, difficulty, selectedCategory, retries + 1);
     },
 
     answerQuestion(answer: string) {
@@ -145,7 +106,30 @@ export const useQuizStore = defineStore("quiz", {
     finishQuiz() {
       this.isFinished = true;
       this.stopTimer();
+      this.saveQuizResult();
     },
+    saveQuizResult() {
+      const correctAnswers = Object.keys(this.answers).filter(index => {
+        const question = this.questions[Number(index)];
+        return question.correct_answer === this.answers[Number(index)];
+      }).length;
+
+      const quizResult = {
+        date: new Date().toISOString(),
+        correctAnswers: correctAnswers,
+        totalQuestions: this.questions.length,
+        elapsedTime: this.elapsedTime,
+        questions: this.questions,
+        answers: this.answers
+      };
+
+      const storedResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
+      
+      storedResults.push(quizResult);
+
+      localStorage.setItem('quizResults', JSON.stringify(storedResults));
+    },
+
     resetQuiz() {
       this.currentQuestionIndex = 0;
       this.answers = {};

@@ -25,15 +25,9 @@ This project is a Quiz application that uses the **Trivia API** to fetch questio
 
 To install and run this project locally, follow these steps:
 
-1. Clone the repository:
+1. Clone the repository
 
-2. Navigate to the project directory:
-
-    ```bash
-    cd nobl9_quiz
-    ```
-
-3. Install the dependencies:
+2. Install the dependencies:
 
     ```bash
     npm install
@@ -47,7 +41,7 @@ To run the application locally, use the following command:
 npm run dev
 ```
 
-This will start a local development server. Open your browser and go to `http://localhost:5173/`.
+This will start a local development server. Open your browser and go to `http://localhost:5173`.
 
 ## Running Tests
 
@@ -57,7 +51,7 @@ To run the unit tests for the application, use the following command:
 npm run test:unit
 ```
 
-The project uses **Jest** and **Vue Test Utils** for unit testing, along with **Pinia** for state management. The tests cover actions such as fetching questions, navigating between questions, and submitting answers.
+The project uses **Jest** for unit testing, along with **Pinia** for state management. The tests cover actions such as fetching questions, navigating between questions, and submitting answers.
 
 ## Project Stack
 

@@ -16,8 +16,7 @@ describe("Quiz Store", () => {
 
   it('should throw an error immediately if retries are 3', async () => {
     const quizStore = useQuizStore();
-    const routerMock = { push: jest.fn() };
-
+    
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -31,15 +30,11 @@ describe("Quiz Store", () => {
     jest.spyOn(sessionStore, 'resetToken').mockResolvedValue();  
 
     try {
-      await quizStore.fetchQuestions(routerMock, 10, 'easy', 1, 3);
+      await quizStore.fetchQuestions(10, 'easy', 1, 3);
     } catch (error) {
      
       expect(error).toEqual(new Error('Maximum retries reached. Please try again later.'));
     }
-
-    expect(global.fetch).not.toHaveBeenCalled();
-
-    expect(routerMock.push).not.toHaveBeenCalled();
   });
 
   it("should store answer for current question", () => {

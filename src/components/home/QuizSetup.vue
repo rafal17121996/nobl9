@@ -142,7 +142,6 @@ const startQuiz = async () => {
 
   try {
     await quizStore.fetchQuestions(
-      router,
       selectedAmount.value,
       selectedDifficulty.value,
       selectedCategory.value
