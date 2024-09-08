@@ -100,7 +100,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useQuizStore } from "../store/quiz";
+import { useQuizStore } from "../../store/quiz";
 import axios from "axios";
 
 const router = useRouter();
@@ -120,6 +120,9 @@ const fetchCategories = async () => {
 
     if (categories.value.length > 0) {
       selectedCategory.value = categories.value[0].id;
+    } else {
+      const errorMessage = 'Failed to fetch categories'
+      router.push({ name: "Error", query: { message: errorMessage } });
     }
   } catch (error) {
     console.error("Failed to fetch categories", error);
@@ -147,7 +150,6 @@ const startQuiz = async () => {
     router.push("/quiz");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    console.error("Failed to start the quiz:", errorMessage);
     router.push({ name: "Error", query: { message: errorMessage } });
   } finally {
     isLoading.value = false;

@@ -1,16 +1,20 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
+interface SessionState {
+  token: string | null;
+  tokenTimestamp: string | null;
+}
+
 export const useLocalStorage = defineStore("session", {
-  state: () => ({
-    token: localStorage.getItem("quizToken") as string | null,
-    tokenTimestamp: localStorage.getItem("quizTokenTimestamp") as string | null,
+  state: (): SessionState => ({
+    token: localStorage.getItem("quizToken"),
+    tokenTimestamp: localStorage.getItem("quizTokenTimestamp"),
   }),
 
   actions: {
     async fetchToken() {
       if (!this.token) {
-        console.log("Fetch token");
         try {
           const response = await axios.get(
             "https://opentdb.com/api_token.php?command=request"

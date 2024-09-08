@@ -6,24 +6,9 @@
       Your quiz time: <span class="font-bold">{{ quizStore.formattedElapsedTime }}</span>
     </p>
     
-    <canvas id="quizSummaryChart" class="mb-10 max-w-lg mx-auto"></canvas>
-    
-    <h3 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-6">Questions and Answers</h3>
-    <ul class="space-y-6">
-      <li v-for="(question, index) in quizStore.questions" :key="index" class="bg-gray-100 dark:bg-gray-700 p-6 max-w-4xl mx-auto rounded-lg shadow">
-        <p v-html="question.question" class="font-bold mb-4 dark:text-gray-200"></p>
-        <p class="mb-2">
-          Your Answer: 
-          <span :class="{'text-green-600 dark:text-green-400 font-bold': isCorrect(index), 'text-red-600 dark:text-red-400 font-bold': !isCorrect(index)}">
-            <p v-html="quizStore.answers[index] || 'No answer provided'" ></p>
-          </span>
-        </p>
-        <p v-if="!isCorrect(index)" class="italic text-gray-500 dark:text-gray-400">
-          Correct Answer: 
-          <p v-html="question.correct_answer"></p>
-        </p>
-      </li>
-    </ul>
+    <Chart :correctAnswers="correctAnswers" :incorrectAnswers="incorrectAnswers" :unansweredQuestions="unansweredQuestions" />
+
+    <QuestionsAndAnswers :questions="quizStore.questions" :answers="Object.values(quizStore.answers)" />
 
     <router-link 
       to="/" 
@@ -35,63 +20,25 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import Chart from 'chart.js/auto';
+import { onMounted, ref } from 'vue';
 import { useQuizStore } from '../store/quiz';
 import { useRouter } from 'vue-router';
-
+import Chart from '../components/summary/Chart.vue';
+import QuestionsAndAnswers from '../components/summary/QuestionsAndAnswers.vue';
 const quizStore = useQuizStore();
 const router = useRouter();
 
+const correctAnswers = ref(0);
+const incorrectAnswers = ref(0);
+const unansweredQuestions = ref(0);
+
 onMounted(() => {
-  console.log(quizStore.isFinished)
-  console.log(quizStore.isFinished)
   if (!quizStore.isFinished) {
     router.push("/");
   }
 
-  const ctx = document.getElementById('quizSummaryChart') as HTMLCanvasElement;
-
-  const correctAnswers = Object.values(quizStore.answers).filter(answer => answer && quizStore.questions.find(q => q.correct_answer.toLowerCase() === answer.toLowerCase())).length;
-  const incorrectAnswers = Object.values(quizStore.answers).filter(answer => answer && !quizStore.questions.find(q => q.correct_answer.toLowerCase() === answer.toLowerCase())).length;
-  const unansweredQuestions = quizStore.questions.length - (correctAnswers + incorrectAnswers);
-
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: ['Correct', 'Incorrect', 'Unanswered'],
-      datasets: [{
-        label: 'Quiz Results',
-        data: [correctAnswers, incorrectAnswers, unansweredQuestions],
-        backgroundColor: ['green', 'red', 'gray'],
-      }],
-    },
-  });
+  correctAnswers.value = Object.values(quizStore.answers).filter(answer => answer && quizStore.questions.find(q => q.correct_answer.toLowerCase() === answer.toLowerCase())).length;
+  incorrectAnswers.value = Object.values(quizStore.answers).filter(answer => answer && !quizStore.questions.find(q => q.correct_answer.toLowerCase() === answer.toLowerCase())).length;
+  unansweredQuestions.value = quizStore.questions.length - (correctAnswers.value + incorrectAnswers.value);
 });
-
-const isCorrect = (index: number) => {
-  const userAnswer = quizStore.answers[index];
-  if (!userAnswer) return false;
-  return userAnswer.toLowerCase() === quizStore.questions[index].correct_answer.toLowerCase();
-};
 </script>
-
-<style scoped>
-@media (max-width: 640px) {
-  .max-w-3xl {
-    max-width: 100%;
-  }
-  
-  .p-8 {
-    padding: 4px;
-  }
-
-  .text-3xl {
-    font-size: 1.5rem;
-  }
-
-  .text-2xl {
-    font-size: 1.25rem;
-  }
-}
-</style>

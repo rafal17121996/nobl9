@@ -8,5 +8,5 @@
 </template>
 
 <script setup lang="ts">
-import QuizSetup from '../components/QuizSetup.vue';
+import QuizSetup from '../components/home/QuizSetup.vue';
 </script>
